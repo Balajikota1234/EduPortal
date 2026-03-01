@@ -174,7 +174,7 @@ export default function TeacherDashboard() {
                     <div className="flex flex-col gap-1 mt-2">
                       <div className="flex gap-2">
                         {test.targetGroups?.map(g => (
-                          <Badge key={g} variant="outline" className="text-[10px] capitalize">{g}</Badge>
+                          <Badge key={g} variant="outline" className="text-[10px] uppercase">{g}</Badge>
                         ))}
                       </div>
                       <div className="text-[10px] text-muted-foreground font-medium">
@@ -293,7 +293,7 @@ export default function TeacherDashboard() {
         )}
       </div>
 
-      <div className={`grid grid-cols-1 ${isDashboard ? 'lg:grid-cols-2' : ''} gap-8`}>
+      <div className="grid grid-cols-1 gap-8">
         {(isDashboard || isTestsPage) && renderTests()}
         {(isDashboard || isReportsPage) && renderReports()}
       </div>
@@ -336,7 +336,7 @@ export default function TeacherDashboard() {
                   variant={form.targetGroups.includes(group) ? "default" : "outline"}
                   size="sm"
                   onClick={() => handleGroupToggle(group)}
-                  className="capitalize"
+                  className="uppercase"
                 >
                   {group}
                 </Button>
