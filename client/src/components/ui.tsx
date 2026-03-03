@@ -137,7 +137,7 @@ export function Modal({
         className="bg-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-xl p-6 border border-border/50 animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 max-h-[92dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Drag handle on mobile */}
+        {/* Drag handle - mobile only */}
         <div className="sm:hidden mx-auto mb-4 w-10 h-1 rounded-full bg-border" />
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-display font-semibold">{title}</h2>

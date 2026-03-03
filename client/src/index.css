@@ -53,17 +53,7 @@
   }
 }
 
-/* Mobile safe-area support (notched phones) */
-@layer utilities {
-  .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  .pt-safe {
-    padding-top: env(safe-area-inset-top, 0px);
-  }
-}
-
-/* Ensure fixed bottom bars don't overlap notch */
+/* Safe-area insets for notched phones (iPhone X+) */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .fixed-bottom-bar {
     padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));

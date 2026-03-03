@@ -65,7 +65,6 @@ export function SidebarLayout({ children, role }: { children: React.ReactNode; r
           );
         })}
       </div>
-
       <div className="p-4 border-t border-border/50">
         <div className="px-4 py-3 mb-2 rounded-xl bg-secondary/50 flex flex-col">
           <span className="text-sm font-semibold text-foreground truncate">{user?.username}</span>
