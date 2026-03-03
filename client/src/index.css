@@ -52,3 +52,20 @@
     @apply active:scale-[0.98] active:translate-y-0 transition-transform duration-200;
   }
 }
+
+/* Mobile safe-area support (notched phones) */
+@layer utilities {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Ensure fixed bottom bars don't overlap notch */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .fixed-bottom-bar {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+  }
+}

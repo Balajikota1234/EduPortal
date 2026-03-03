@@ -42,7 +42,7 @@ export default function StudentDashboard() {
 
   const renderTests = () => (
     <section>
-      <h2 className="text-2xl font-display font-semibold flex items-center gap-2 mb-6">
+      <h2 className="text-xl sm:text-2xl font-display font-semibold flex items-center gap-2 mb-6">
         <FileText size={24} className="text-primary" /> Available Tests
       </h2>
       {testsLoading ? (
@@ -50,9 +50,9 @@ export default function StudentDashboard() {
       ) : availableTests.length === 0 ? (
         <Card className="p-8 text-center text-muted-foreground border-dashed border-2">No new tests available.</Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {availableTests.map(test => (
-            <Card key={test.id} className="p-6 flex flex-col justify-between">
+            <Card key={test.id} className="p-4 sm:p-6 flex flex-col justify-between">
               <div>
                 <Badge className="mb-3">{test.subject}</Badge>
                 <h3 className="text-xl font-bold mb-2">{test.title}</h3>
@@ -71,11 +71,11 @@ export default function StudentDashboard() {
   );
 
   const renderResults = () => {
-    const displayResults = isDashboard ? results?.slice(0, 2) : results;
+    const displayResults = isDashboard ? results?.slice(0, 3) : results;
 
     return (
       <section>
-        <h2 className="text-2xl font-display font-semibold flex items-center gap-2 mb-6">
+        <h2 className="text-xl sm:text-2xl font-display font-semibold flex items-center gap-2 mb-6">
           <CheckCircle2 size={24} className="text-emerald-500" /> {isDashboard ? "Recent Results" : "Completed Tests"}
         </h2>
         {resultsLoading ? (
@@ -85,17 +85,15 @@ export default function StudentDashboard() {
             {isDashboard ? "No recent results." : "You haven't completed any tests yet."}
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {displayResults.map(item => {
-              const maxPossible = item.result.totalQuestions * (item.test?.correctPoints || 4);
-              const percentage = Math.round((item.result.score / maxPossible) * 100);
+              const percentage = Math.round((item.result.score / item.result.totalQuestions) * 100);
               const isGood = percentage >= 70;
               
-              const totalScore = item.result.score;
+              const correct = item.result.score;
               const answered = item.result.answeredQuestions || 0;
               const wrong = item.result.wrongQuestions || 0;
               const unanswered = item.result.unansweredQuestions || 0;
-              const correctCount = answered - wrong;
               
               return (
                 <Card key={item.result.id} className="p-6 flex flex-col gap-4 hover-elevate transition-all border-l-4 border-l-primary/20">
@@ -106,17 +104,14 @@ export default function StudentDashboard() {
                       <p className="text-xs text-muted-foreground flex items-center"><Clock size={12} className="mr-1" /> {Math.round(item.result.timeTaken / 60)} min taken</p>
                       <p className="text-xs text-muted-foreground mt-1">{format(new Date(item.result.createdAt), "MMM d, yyyy h:mm a")}</p>
                     </div>
-                    <div className="text-right">
-                      <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 mb-1 ${isGood ? 'border-emerald-500 text-emerald-600' : 'border-amber-500 text-amber-600'}`}>
-                        <span className="text-xl font-bold">{totalScore}</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Out of {item.test?.totalMarks || 100}</p>
+                    <div className={`w-16 h-16 rounded-full flex items-center justify-center border-4 ${isGood ? 'border-emerald-500 text-emerald-600' : 'border-amber-500 text-amber-600'}`}>
+                      <span className="text-xl font-bold">{percentage}%</span>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-4 border-t border-border/50">
+                  <div className="grid grid-cols-2 xs:grid-cols-4 gap-2 pt-4 border-t border-border/50">
                     <div className="bg-emerald-50 p-2 rounded-lg text-center">
                       <p className="text-[10px] text-emerald-600 font-bold uppercase">Correct</p>
-                      <p className="text-lg font-bold text-emerald-700">{correctCount}</p>
+                      <p className="text-lg font-bold text-emerald-700">{correct}</p>
                     </div>
                     <div className="bg-destructive/10 p-2 rounded-lg text-center">
                       <p className="text-[10px] text-destructive font-bold uppercase">Wrong</p>
@@ -198,8 +193,8 @@ export default function StudentDashboard() {
 
   return (
     <SidebarLayout role="student">
-      <div className="mb-10">
-        <h1 className="text-4xl font-display font-bold text-foreground">
+      <div className="mb-6 sm:mb-10">
+        <h1 className="text-2xl sm:text-4xl font-display font-bold text-foreground">
           {isTestsPage ? "Available Tests" : isResultsPage ? "My Results" : "Student Portal"}
         </h1>
         <p className="text-muted-foreground mt-2 text-lg">
@@ -207,7 +202,7 @@ export default function StudentDashboard() {
         </p>
       </div>
 
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-12">
         {(isDashboard || isTestsPage) && renderTests()}
         {(isDashboard || isResultsPage) && renderResults()}
       </div>

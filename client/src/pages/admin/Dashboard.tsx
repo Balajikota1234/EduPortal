@@ -86,9 +86,9 @@ export default function AdminDashboard() {
 
   return (
     <SidebarLayout role="admin">
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 mb-6 sm:mb-8">
         <div>
-          <h1 className="text-4xl font-display font-bold text-foreground">User Management</h1>
+          <h1 className="text-2xl sm:text-4xl font-display font-bold text-foreground">User Management</h1>
           <p className="text-muted-foreground mt-2 text-lg">Create and manage portal access</p>
         </div>
         <Button onClick={() => setIsModalOpen(true)} className="hover-elevate">
@@ -96,38 +96,38 @@ export default function AdminDashboard() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <Card className="p-4 flex items-center gap-4 bg-emerald-50 border-emerald-100">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-emerald-50 border-emerald-100">
           <GraduationCap className="text-emerald-600" size={32} />
           <div>
             <p className="text-sm text-emerald-600 font-medium uppercase tracking-wider">Students</p>
-            <p className="text-2xl font-bold">{roleCounts.student}</p>
+            <p className="{roleCounts[role]}">{roleCounts.student}</p>
           </div>
         </Card>
-        <Card className="p-4 flex items-center gap-4 bg-primary/10 border-primary/20">
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-primary/10 border-primary/20">
           <UserIcon className="text-primary" size={32} />
           <div>
             <p className="text-sm text-primary font-medium uppercase tracking-wider">Teachers</p>
-            <p className="text-2xl font-bold">{roleCounts.teacher}</p>
+            <p className="{roleCounts[role]}">{roleCounts.teacher}</p>
           </div>
         </Card>
-        <Card className="p-4 flex items-center gap-4 bg-amber-50 border-amber-100">
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-amber-50 border-amber-100">
           <UsersIcon className="text-amber-600" size={32} />
           <div>
             <p className="text-sm text-amber-600 font-medium uppercase tracking-wider">Parents</p>
-            <p className="text-2xl font-bold">{roleCounts.parent}</p>
+            <p className="{roleCounts[role]}">{roleCounts.parent}</p>
           </div>
         </Card>
-        <Card className="p-4 flex items-center gap-4 bg-destructive/10 border-destructive/20">
+        <Card className="p-3 sm:p-4 flex items-center gap-3 sm:gap-4 bg-destructive/10 border-destructive/20">
           <Shield className="text-destructive" size={32} />
           <div>
             <p className="text-sm text-destructive font-medium uppercase tracking-wider">Admins</p>
-            <p className="text-2xl font-bold">{roleCounts.admin}</p>
+            <p className="{roleCounts[role]}">{roleCounts.admin}</p>
           </div>
         </Card>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 mb-5">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
           <Input 
@@ -186,14 +186,12 @@ export default function AdminDashboard() {
                       <div className="flex items-center gap-2">
                         {getRoleIcon(u.role)}
                         <span className="capitalize">{u.role}</span>
+                        {u.role === "student" && u.group && (
+                          <Badge variant="outline" className="ml-2 uppercase font-bold">{u.group}</Badge>
+                        )}
                       </div>
                     </td>
                     <td className="p-4 text-sm text-muted-foreground">
-                      {u.role === "student" && u.group && (
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="uppercase font-bold">{u.group}</Badge>
-                        </div>
-                      )}
                       {u.role === "parent" && u.linkedStudentId && `Linked to Student #${u.linkedStudentId}`}
                     </td>
                     <td className="p-4 text-right">

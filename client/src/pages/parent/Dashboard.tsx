@@ -22,12 +22,12 @@ export default function ParentDashboard() {
 
   return (
     <SidebarLayout role="parent">
-      <div className="mb-10">
-        <h1 className="text-4xl font-display font-bold text-foreground">Parent Portal</h1>
+      <div className="mb-6 sm:mb-10">
+        <h1 className="text-2xl sm:text-4xl font-display font-bold text-foreground">Parent Portal</h1>
         <p className="text-muted-foreground mt-2 text-lg">Track your child's academic progress</p>
       </div>
 
-      <h2 className="text-2xl font-display font-semibold flex items-center gap-2 mb-6">
+      <h2 className="text-xl sm:text-2xl font-display font-semibold flex items-center gap-2 mb-6">
         <Activity size={24} className="text-primary" /> Academic Reports
       </h2>
 
@@ -56,8 +56,13 @@ export default function ParentDashboard() {
                   
                   <div className="flex gap-8 items-center bg-zinc-50 p-4 rounded-2xl border border-zinc-100">
                     <div className="text-center">
-                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Aquired Marks</p>
-                      <p className="text-2xl font-display font-bold text-zinc-900">{item.result.score} <span className="text-sm text-zinc-400 font-medium">/ {item.test.totalMarks || 100}</span></p>
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Score</p>
+                      <p className="text-2xl font-display font-bold text-zinc-900">{item.result.score} <span className="text-sm text-zinc-400 font-medium">/ {item.result.totalQuestions}</span></p>
+                    </div>
+                    <div className="w-px h-12 bg-zinc-200" />
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground uppercase tracking-wider font-semibold mb-1">Grade</p>
+                      <p className={`text-2xl font-display font-bold ${percentage >= 70 ? 'text-emerald-600' : 'text-amber-600'}`}>{percentage}%</p>
                     </div>
                   </div>
                 </div>

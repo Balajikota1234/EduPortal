@@ -17,12 +17,12 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-zinc-50 p-4">
       {/* Landing page hero aesthetic background blur effect */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-      <Card className="w-full max-w-md p-8 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-        <div className="flex flex-col items-center mb-10">
+      <Card className="w-full max-w-md p-6 sm:p-8 relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="flex flex-col items-center mb-7 sm:mb-10">
           <div className="w-14 h-14 bg-primary text-primary-foreground rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary/20">
             <BookOpen size={28} />
           </div>
-          <h1 className="text-3xl font-display font-bold text-center">Welcome Back</h1>
+          <h1 className="text-2xl sm:text-3xl font-display font-bold text-center">Welcome Back</h1>
           <p className="text-muted-foreground text-center mt-2">Sign in to the Sri Balaji Educational Institution's Educational Portal</p>
         </div>
 
