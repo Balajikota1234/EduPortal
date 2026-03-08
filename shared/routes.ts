@@ -1,6 +1,5 @@
 import type { Express } from "express";
 import type { Server } from "http";
-import { storage } from "./storage";
 import { db } from "./db";
 import { results } from "@shared/schema";
 import { eq } from "drizzle-orm";
