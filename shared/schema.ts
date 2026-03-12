@@ -22,7 +22,6 @@ export const tests = pgTable("tests", {
   targetGroups: text("target_groups").array().default(sql`'{}'::text[]`),
   correctPoints: integer("correct_points").default(4),
   wrongPoints: integer("wrong_points").default(-1),
-  totalMarks: integer("total_marks").default(100),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
