@@ -1,74 +1,193 @@
-﻿import { sql } from "drizzle-orm";
-import { pgTable, text, serial, integer, timestamp, boolean } from "drizzle-orm/pg-core";
-import { createInsertSchema } from "drizzle-zod";
-import { z } from "zod";
+﻿import { z } from "zod";
+import { insertUserSchema, insertTestSchema, insertQuestionSchema, users, tests, questions, results } from "./schema";
 
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  role: text("role", { enum: ["admin", "teacher", "student", "parent"] }).notNull(),
-  group: text("group", { enum: ["eamcet", "iit", "neet", "defence"] }),
-  linkedStudentId: integer("linked_student_id"), 
+export const errorSchemas = {
+  validation: z.object({ message: z.string(), field: z.string().optional() }),
+  notFound: z.object({ message: z.string() }),
+  internal: z.object({ message: z.string() }),
+  unauthorized: z.object({ message: z.string() }),
+  forbidden: z.object({ message: z.string() })
+};
+
+export const userResponseSchema = z.object({
+  id: z.number(),
+  username: z.string(),
+  role: z.string(),
+  group: z.string().nullable().optional(),
+  linkedStudentId: z.number().nullable().optional()
 });
 
-export const tests = pgTable("tests", {
-  id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  subject: text("subject").notNull(),
-  duration: integer("duration").notNull(), // minutes
-  teacherId: integer("teacher_id").notNull(),
-  isPublished: boolean("is_published").default(false),
-  targetGroups: text("target_groups").array().default(sql`'{}'::text[]`),
-  correctPoints: integer("correct_points").default(4),
-  wrongPoints: integer("wrong_points").default(-1),
-  totalMarks: integer("total_marks").default(100),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const api = {
+  auth: {
+    login: {
+      method: "POST" as const,
+      path: "/api/login" as const,
+      input: z.object({ username: z.string(), password: z.string() }),
+      responses: {
+        200: userResponseSchema,
+        401: errorSchemas.unauthorized
+      }
+    },
+    logout: {
+      method: "POST" as const,
+      path: "/api/logout" as const,
+      responses: { 200: z.void() }
+    },
+    me: {
+      method: "GET" as const,
+      path: "/api/user" as const,
+      responses: { 
+        200: userResponseSchema,
+        401: errorSchemas.unauthorized 
+      }
+    }
+  },
+  admin: {
+    users: {
+      list: {
+        method: "GET" as const,
+        path: "/api/users" as const,
+        responses: { 200: z.array(userResponseSchema) }
+      },
+      create: {
+        method: "POST" as const,
+        path: "/api/users" as const,
+        input: insertUserSchema,
+        responses: {
+          201: userResponseSchema,
+          400: errorSchemas.validation
+        }
+      },
+      delete: {
+        method: "DELETE" as const,
+        path: "/api/users/:id" as const,
+        responses: { 200: z.void() }
+      }
+    }
+  },
+  teacher: {
+    tests: {
+      list: {
+        method: "GET" as const,
+        path: "/api/tests" as const,
+        responses: { 200: z.array(z.custom<typeof tests.$inferSelect>()) }
+      },
+      create: {
+        method: "POST" as const,
+        path: "/api/tests" as const,
+        input: insertTestSchema,
+        responses: { 201: z.custom<typeof tests.$inferSelect>() }
+      },
+      update: {
+        method: "PUT" as const,
+        path: "/api/tests/:id" as const,
+        input: insertTestSchema.partial(),
+        responses: { 200: z.custom<typeof tests.$inferSelect>() }
+      },
+      delete: {
+        method: "DELETE" as const,
+        path: "/api/tests/:id" as const,
+        responses: { 200: z.void() }
+      },
+      getQuestions: {
+        method: "GET" as const,
+        path: "/api/tests/:testId/questions" as const,
+        responses: { 200: z.array(z.custom<typeof questions.$inferSelect>()) }
+      },
+      addQuestion: {
+        method: "POST" as const,
+        path: "/api/tests/:testId/questions" as const,
+        input: insertQuestionSchema.omit({ testId: true }),
+        responses: { 201: z.custom<typeof questions.$inferSelect>() }
+      },
+      updateQuestion: {
+        method: "PUT" as const,
+        path: "/api/questions/:id" as const,
+        input: insertQuestionSchema.partial(),
+        responses: { 200: z.custom<typeof questions.$inferSelect>() }
+      },
+      deleteQuestion: {
+        method: "DELETE" as const,
+        path: "/api/questions/:id" as const,
+        responses: { 200: z.void() }
+      }
+    }
+  },
+  student: {
+    tests: {
+      list: {
+        method: "GET" as const,
+        path: "/api/student/tests" as const,
+        responses: { 200: z.array(z.custom<typeof tests.$inferSelect>()) }
+      },
+      get: {
+        method: "GET" as const,
+        path: "/api/student/tests/:id" as const,
+        responses: { 
+          200: z.object({
+            test: z.custom<typeof tests.$inferSelect>(),
+            questions: z.array(insertQuestionSchema.extend({ id: z.number() }).omit({ correctOpt: true }))
+          }),
+          404: errorSchemas.notFound
+        }
+      },
+      submit: {
+        method: "POST" as const,
+        path: "/api/student/tests/:id/submit" as const,
+        input: z.object({
+          answers: z.record(z.string(), z.number()), // questionId -> chosen option (1-4)
+          timeTaken: z.number() // seconds
+        }),
+        responses: {
+          201: z.custom<typeof results.$inferSelect>(),
+          400: errorSchemas.validation
+        }
+      },
+      review: {
+        method: "GET" as const,
+        path: "/api/student/results/:resultId/review" as const,
+        responses: {
+          200: z.object({
+            result: z.custom<typeof results.$inferSelect>(),
+            questions: z.array(z.custom<typeof questions.$inferSelect>())
+          }),
+          404: errorSchemas.notFound
+        }
+      }
+    }
+  },
+  shared: {
+    results: {
+      list: {
+        method: "GET" as const,
+        path: "/api/results" as const,
+        input: z.object({ testId: z.string().optional() }).optional(),
+        responses: { 
+          200: z.array(z.object({
+            result: z.custom<typeof results.$inferSelect>(),
+            test: z.custom<typeof tests.$inferSelect>(),
+            student: userResponseSchema
+          }))
+        }
+      },
+      markRead: {
+        method: "PATCH" as const,
+        path: "/api/results/:id/read" as const,
+        responses: { 200: z.custom<typeof results.$inferSelect>() }
+      }
+    }
+  }
+};
 
-export const questions = pgTable("questions", {
-  id: serial("id").primaryKey(),
-  testId: integer("test_id").notNull(),
-  question: text("question").notNull(),
-  opt1: text("opt1").notNull(),
-  opt2: text("opt2").notNull(),
-  opt3: text("opt3").notNull(),
-  opt4: text("opt4").notNull(),
-  correctOpt: integer("correct_opt").notNull(),
-});
+export function buildUrl(path: string, params?: Record<string, string | number>): string {
+  let url = path;
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (url.includes(`:${key}`)) {
+        url = url.replace(`:${key}`, String(value));
+      }
+    });
+  }
+  return url;
+}
 
-export const results = pgTable("results", {
-  id: serial("id").primaryKey(),
-  testId: integer("test_id").notNull(),
-  studentId: integer("student_id").notNull(),
-  score: integer("score").notNull(), // This will store correct answers count
-  totalQuestions: integer("total_questions").notNull(),
-  answeredQuestions: integer("answered_questions").default(0),
-  wrongQuestions: integer("wrong_questions").default(0),
-  unansweredQuestions: integer("unanswered_questions").default(0),
-  timeTaken: integer("time_taken").notNull(), // seconds
-  isRead: boolean("is_read").default(false),
-  answers: text("answers"), // Store student answers as JSON string
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true });
-export const insertTestSchema = createInsertSchema(tests).omit({ id: true, createdAt: true, teacherId: true });
-export const insertQuestionSchema = createInsertSchema(questions).omit({ id: true });
-export const insertResultSchema = createInsertSchema(results).omit({ id: true, createdAt: true, studentId: true });
-
-// Explicit API Contract Types
-export type User = typeof users.$inferSelect;
-export type InsertUser = z.infer<typeof insertUserSchema>;
-
-export type Test = typeof tests.$inferSelect;
-export type InsertTest = z.infer<typeof insertTestSchema>;
-export type UpdateTestRequest = Partial<InsertTest>;
-
-export type Question = typeof questions.$inferSelect;
-export type InsertQuestion = z.infer<typeof insertQuestionSchema>;
-export type UpdateQuestionRequest = Partial<InsertQuestion>;
-
-export type Result = typeof results.$inferSelect;
-export type InsertResult = z.infer<typeof insertResultSchema>;
