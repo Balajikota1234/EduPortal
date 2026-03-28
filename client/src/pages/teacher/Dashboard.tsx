@@ -61,11 +61,12 @@ export default function TeacherDashboard() {
       return;
     }
 
-    const headers = ["Student", "Date", "Aquired Marks", "Total Marks", "Correct", "Wrong", "Unanswered", "Time Taken (min)"];
+    const headers = ["Student", "Group", "Date", "Aquired Marks", "Total Marks", "Correct", "Wrong", "Unanswered", "Time Taken (min)"];
     const rows = testResults.map(r => {
       const currentTest = tests?.find(t => t.id === testId);
       return [
         r.student.username,
+        r.student.group ? r.student.group.toUpperCase() : "-",
         format(new Date(r.result.createdAt), "yyyy-MM-dd HH:mm"),
         r.result.score,
         currentTest?.totalMarks ?? 100,
