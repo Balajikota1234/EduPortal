@@ -15,7 +15,6 @@ export async function registerRoutes(
 ): Promise<Server> {
   setupAuth(app);
 
-  // Authentication
   app.post(api.auth.login.path, passport.authenticate("local"), (req, res) => {
     res.status(200).json(req.user);
   });
@@ -32,7 +31,6 @@ export async function registerRoutes(
     res.json(req.user);
   });
 
-  // Admin: Users
   app.get(api.admin.users.list.path, async (req, res) => {
     if (req.user?.role !== "admin") return res.status(403).json({ message: "Forbidden" });
     const users = await storage.getUsers();
@@ -63,11 +61,9 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
-  // Teacher: Tests
   app.get(api.teacher.tests.list.path, async (req, res) => {
     if (req.user?.role !== "teacher") return res.status(403).json({ message: "Forbidden" });
     const tests = await storage.getTests();
-    // Filter tests by teacherId
     res.json(tests.filter(t => t.teacherId === req.user!.id));
   });
 
@@ -142,18 +138,14 @@ export async function registerRoutes(
     res.sendStatus(200);
   });
 
-  // Student: Tests
   app.get(api.student.tests.list.path, async (req, res) => {
     if (req.user?.role !== "student") return res.status(403).json({ message: "Forbidden" });
     const tests = await storage.getTests();
     const studentGroup = req.user.group;
-    
-    // Filter tests by student's group
     const filteredTests = tests.filter(t => {
       if (!t.targetGroups || t.targetGroups.length === 0) return true;
       return studentGroup && t.targetGroups.includes(studentGroup);
     });
-    
     res.json(filteredTests);
   });
 
@@ -161,13 +153,11 @@ export async function registerRoutes(
     if (req.user?.role !== "student") return res.status(403).json({ message: "Forbidden" });
     const test = await storage.getTest(Number(req.params.id));
     if (!test) return res.status(404).json({ message: "Test not found" });
-    
     const allQuestions = await storage.getQuestionsByTest(test.id);
     const questionsWithoutAnswer = allQuestions.map(q => {
       const { correctOpt, ...rest } = q;
       return rest;
     });
-
     res.json({ test, questions: questionsWithoutAnswer });
   });
 
@@ -180,7 +170,6 @@ export async function registerRoutes(
       if (!test) return res.status(404).json({ message: "Test not found" });
 
       const questions = await storage.getQuestionsByTest(testId);
-      
       const correctPoints = test.correctPoints ?? 4;
       const wrongPoints = test.wrongPoints ?? -1;
 
@@ -226,20 +215,14 @@ export async function registerRoutes(
     if (req.user?.role !== "student") return res.status(403).json({ message: "Forbidden" });
     const result = await db.select().from(results).where(eq(results.id, Number(req.params.resultId))).limit(1);
     if (!result.length) return res.status(404).json({ message: "Result not found" });
-    
     if (result[0].studentId !== req.user.id) return res.status(403).json({ message: "Forbidden" });
-    
     const questionsList = await storage.getQuestionsByTest(result[0].testId);
     res.json({ result: result[0], questions: questionsList });
   });
 
-  // Shared: Results
   app.get(api.shared.results.list.path, async (req, res) => {
     if (!req.user) return res.status(401).json({ message: "Not authenticated" });
-    
     let allResults = await storage.getAllResults();
-    
-    // Filter based on role
     const currentUserId = req.user ? Number(req.user.id) : null;
     if (!currentUserId) return res.status(401).json({ message: "Not authenticated" });
 
@@ -260,8 +243,7 @@ export async function registerRoutes(
     } else {
       return res.json([]);
     }
-    
-    // Apply testId query filter if present
+
     if (req.query.testId) {
       allResults = allResults.filter(r => r.testId === Number(req.query.testId));
     }
@@ -283,15 +265,16 @@ export async function registerRoutes(
     res.json(result);
   });
 
-  // Seed default admin user
+  // Seed default admin user only if NO admin exists at all
   seedDatabase().catch(console.error);
 
   return httpServer;
 }
 
 async function seedDatabase() {
-  const existingAdmin = await storage.getUserByUsername("admin");
-  if (!existingAdmin) {
+  const allUsers = await storage.getUsers();
+  const anyAdmin = allUsers.some(u => u.role === "admin");
+  if (!anyAdmin) {
     const hashedPassword = await hashPassword("admin123");
     await storage.createUser({
       username: "admin",

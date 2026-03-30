@@ -136,6 +136,7 @@ export function Modal({
       <div
         className="bg-card w-full sm:max-w-lg rounded-t-3xl sm:rounded-3xl shadow-xl p-6 border border-border/50 animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200 max-h-[92dvh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Drag handle - mobile only */}
         <div className="sm:hidden mx-auto mb-4 w-10 h-1 rounded-full bg-border" />
