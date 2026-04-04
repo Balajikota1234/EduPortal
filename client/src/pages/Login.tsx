@@ -26,7 +26,7 @@ export default function Login() {
           </div>
           <h1 className="text-2xl font-display font-bold text-center">Welcome Back</h1>
           <p className="text-muted-foreground text-center mt-1.5 text-sm">
-            Sign in to Sri Balaji Educational Institution's Portal
+            Sign in to Sri Balaji Educational Institution's Educational Portal
           </p>
         </div>
         <form onSubmit={handleSubmit} className="space-y-5">
